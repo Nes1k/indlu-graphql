@@ -1,0 +1,103 @@
+schema {
+  query: Query
+}
+
+type Advertisement implements Node {
+  id: ID!
+  property: Property
+  payment: Int
+  price: Int
+  freePlaces: Int
+  image: String
+}
+
+type AdvertisementConnection {
+  pageInfo: PageInfo!
+  edges: [AdvertisementEdge]
+}
+
+type AdvertisementEdge {
+  node: Advertisement
+  cursor: String!
+}
+
+interface Node {
+  id: ID!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+type Property implements Node {
+  id: ID!
+  user: User
+  country: String
+  street: String
+  postalCode: String
+  city: String
+  buildingType: Int
+  name: String
+  area: Float
+  totalPlaces: Int
+  coords: [Float]
+  rooms: RoomConnection
+  advertisement: Advertisement
+}
+
+type PropertyConnection {
+  pageInfo: PageInfo!
+  edges: [PropertyEdge]
+}
+
+type PropertyEdge {
+  node: Property
+  cursor: String!
+}
+
+type Query {
+  user: User
+  create: Int
+  node(id: ID!): Node
+}
+
+type Room implements Node {
+  id: ID!
+  property: Property
+  roomsType: Int
+  name: String
+  area: Float
+  freePlaces: Int
+  equipment: [String]
+  images: [String]
+}
+
+type RoomConnection {
+  pageInfo: PageInfo!
+  edges: [RoomEdge]
+}
+
+type RoomEdge {
+  node: Room
+  cursor: String!
+}
+
+type User implements Node {
+  id: ID!
+  email: String
+  country: String
+  street: String
+  postalCode: String
+  city: String
+  phone: String
+  firstName: String
+  lastName: String
+  dataJoined: String
+  properties(after: String, first: Int, before: String, last: Int): PropertyConnection
+  favourites(after: String, first: Int, before: String, last: Int): AdvertisementConnection
+  ads(after: String, first: Int, before: String, last: Int): AdvertisementConnection
+  ad(id: ID!): Advertisement
+}
