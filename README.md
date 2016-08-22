@@ -1,1 +1,1 @@
-Simple app in wchich I explore graphql and relay.
+Simple app in which I explore graphql and relay.
