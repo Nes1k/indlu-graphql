@@ -5,6 +5,7 @@ import { Link } from 'react-router';
 
 let TilesAdd = (props) => {
   const { ad } = props;
+  console.log(ad);
   return (
     <div key={ad.id} className="col-sm-12 col-md-6 col-lg-5">
       <div className="thumbnail">
@@ -12,7 +13,7 @@ let TilesAdd = (props) => {
           <img src={`images/${ad.image}`} />
         </Link>
         <div className="caption">
-          <h4>{ad.property.city}</h4> <h5>{ad.property.street}</h5>
+          <h4>{ad.estate.city}</h4> <h5>{ad.estate.street}</h5>
           <p>
             Wolnych miejsc: {ad.freePlaces}<br/>
             Cena: {ad.price}<br/>
@@ -37,7 +38,7 @@ TilesAdd = Relay.createContainer(TilesAdd, {
         freePlaces
         image
 
-        property {
+        estate {
           city
           street
         }

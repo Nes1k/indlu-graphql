@@ -6,7 +6,7 @@ import {
   Home,
   AdDetail,
   MyRealEstates,
-  EditEstate
+  ManageEstate
 } from './views';
 
 export default (
@@ -14,7 +14,8 @@ export default (
     <IndexRoute component={Home} />
     <Route path="ad/:id" component={AdDetail} />
     <Route path="estates" component={MyRealEstates} />
-    <Route path="estates/edit/:id" component={EditEstate} />
+    <Route path="estates/add" component={ManageEstate} />
+    <Route path="estates/edit/:id" component={ManageEstate} />
     <Route path="*" component={Home} />
   </Route>
 );

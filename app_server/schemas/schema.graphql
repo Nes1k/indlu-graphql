@@ -1,10 +1,11 @@
 schema {
   query: Query
+  mutation: GraphQLMutation
 }
 
 type Advertisement implements Node {
   id: ID!
-  property: Property
+  estate: Estate
   payment: Int
   price: Int
   freePlaces: Int
@@ -21,18 +22,38 @@ type AdvertisementEdge {
   cursor: String!
 }
 
-interface Node {
+input CreateEstateInput {
+  country: String!
+  street: String!
+  postalCode: String!
+  city: String!
+  buildingType: Int!
+  name: String!
+  clientMutationId: String!
+}
+
+type CreateEstatePayload {
+  estate: Estate
+  clientMutationId: String!
+}
+
+input EditEstateInput {
   id: ID!
+  country: String!
+  street: String!
+  postalCode: String!
+  city: String!
+  buildingType: Int!
+  name: String!
+  clientMutationId: String!
 }
 
-type PageInfo {
-  hasNextPage: Boolean!
-  hasPreviousPage: Boolean!
-  startCursor: String
-  endCursor: String
+type EditEstatePayload {
+  estate: Estate
+  clientMutationId: String!
 }
 
-type Property implements Node {
+type Estate implements Node {
   id: ID!
   user: User
   country: String
@@ -45,28 +66,46 @@ type Property implements Node {
   totalPlaces: Int
   coords: [Float]
   rooms: RoomConnection
+  numberOfRooms: Int
   advertisement: Advertisement
 }
 
-type PropertyConnection {
+type EstateConnection {
   pageInfo: PageInfo!
-  edges: [PropertyEdge]
+  edges: [EstateEdge]
 }
 
-type PropertyEdge {
-  node: Property
+type EstateEdge {
+  node: Estate
   cursor: String!
+}
+
+type GraphQLMutation {
+  createEstate(input: CreateEstateInput!): CreateEstatePayload
+  editEstate(input: EditEstateInput!): EditEstatePayload
+}
+
+interface Node {
+  id: ID!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
 }
 
 type Query {
   user: User
+  estate(id: ID): Estate
   create: Int
   node(id: ID!): Node
 }
 
 type Room implements Node {
   id: ID!
-  property: Property
+  estate: Estate
   roomsType: Int
   name: String
   area: Float
@@ -96,8 +135,7 @@ type User implements Node {
   firstName: String
   lastName: String
   dataJoined: String
-  properties(after: String, first: Int, before: String, last: Int): PropertyConnection
+  estates(after: String, first: Int, before: String, last: Int): EstateConnection
   favourites(after: String, first: Int, before: String, last: Int): AdvertisementConnection
   ads(after: String, first: Int, before: String, last: Int): AdvertisementConnection
-  ad(id: ID!): Advertisement
 }

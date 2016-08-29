@@ -1,9 +1,8 @@
 import React, { Component, PropTypes } from 'react';
 import Relay, { RootContainer, Route } from 'react-relay';
 import { Link } from 'react-router';
-import Slider from 'react-slick';
 
-import { Map } from '../components';
+import { GMap } from '../components';
 
 
 class AdDetail extends Component {
@@ -11,37 +10,34 @@ class AdDetail extends Component {
   render(){
     const { ad } = this.props;
     console.log(ad);
-    const { coords } = ad.property;
+    const { coords } = ad.estate;
     return (
       <div className="row adBody">
         <div className="col-md-12">
-            <div className="row">
-              <div className="col-sm-12">
-                {/* <button type="button" className="btn btn-info">
-                Złóż ofertę
-                </button> */}
-                  <button className="btn btn-danger btn-circle pull-right">
-                    <i className="glyphicon glyphicon-heart"></i>
-                  </button>
-                </div>
-            </div>
-            <hr/>
-            <div className="row">
-              <div style={{height: 400}}className="col-sm-6 container">
-                  <img style={{width: '100%', height: 400}} src={`/images/${ad.image}`} />
+          <div className="row">
+            <div className="col-sm-12">
+              <button className="btn btn-danger btn-circle pull-right">
+                <i className="glyphicon glyphicon-heart"></i>
+              </button>
               </div>
-              <div className="col-sm-6">
-                <Map coords={coords} />
-              </div>
+          </div>
+          <hr/>
+          <div className="row">
+            <div style={{height: 400}}className="col-sm-6 container">
+                <img style={{width: '100%', height: 400}} src={`/images/${ad.image}`} />
             </div>
-            <div className="caption">
-              <h4>{ad.property.city}</h4> <h5>{ad.property.street}</h5>
-              <p>
-                Wolnych miejsc: {ad.freePlaces}<br/>
-                Cena: {ad.price}<br/>
-                Płatność: {ad.payment}<br/>
-              </p>
+            <div className="col-sm-6">
+              <GMap coords={coords} />
             </div>
+          </div>
+          <div className="caption">
+            <h4>{ad.estate.city}</h4> <h5>{ad.estate.street}</h5>
+            <p>
+              Wolnych miejsc: {ad.freePlaces}<br/>
+              Cena: {ad.price}<br/>
+              Płatność: {ad.payment}<br/>
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -58,7 +54,7 @@ AdDetail = Relay.createContainer(AdDetail, {
         price
         freePlaces
         image
-        property {
+        estate {
           city
           street
           coords

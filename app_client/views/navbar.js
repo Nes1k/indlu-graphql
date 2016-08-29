@@ -18,13 +18,13 @@ export default (props) => {
               </Link>
             </li>
             <li>
-              <Link to="/properties" activeClassName="active">
-                Properties
+              <Link to="/estates" activeClassName="active">
+                Estate
               </Link>
             </li>
             <li>
-              <Link to="/properties" activeClassName="active">
-                Properties
+              <Link to="/estates" activeClassName="active">
+                Estates
               </Link>
             </li>
           </ul>

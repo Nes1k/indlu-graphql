@@ -18,7 +18,7 @@ const userSchema = new Schema({
   lastName: String,
   dataJoined: { type: Date, default: Date.now },
 
-  properties: [ { type: ObjectId, ref: 'Property'} ],
+  estates: [ { type: ObjectId, ref: 'Estate'} ],
   favourites: [ { type: ObjectId, ref: 'Advertisement' } ]
 });
 

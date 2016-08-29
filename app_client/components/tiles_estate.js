@@ -33,7 +33,7 @@ export let TilesEstate = ({ estate }) => {
 TilesEstate = Relay.createContainer(TilesEstate, {
   fragments: {
     estate: () => Relay.QL`
-      fragment on Property {
+      fragment on Estate {
         id
         name
         city

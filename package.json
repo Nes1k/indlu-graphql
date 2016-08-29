@@ -16,9 +16,11 @@
     "babel-preset-es2015": "^6.13.2",
     "babel-preset-react": "^6.11.1",
     "babel-preset-stage-0": "6.5.0",
-    "babel-relay-plugin": "0.9.2",
+    "babel-relay-plugin": "^0.9.2",
+    "babel-relay-plugin-loader": "^0.9.0",
     "chokidar": "1.6.0",
     "classnames": "2.2.5",
+    "css-loader": "^0.24.0",
     "dotenv": "^2.0.0",
     "express": "^4.14.0",
     "express-graphql": "^0.5.3",
@@ -28,20 +30,28 @@
     "mongoose": "^4.5.5",
     "morgan": "^1.7.0",
     "node-geocoder": "^3.14.0",
+    "node-sass": "^3.8.0",
     "react": "^15.3.0",
     "react-dom": "^15.3.0",
     "react-google-maps": "^4.11.0",
-    "react-relay": "0.9.2",
+    "react-redux": "^4.4.5",
+    "react-relay": "^0.9.2",
     "react-router": "^2.6.1",
+    "redux": "^3.5.2",
+    "redux-form": "^6.0.0-rc.3",
     "relay-mongodb-connection": "^2.1.0",
     "require-clean": "0.1.3",
+    "sass-loader": "^4.0.0",
+    "style-loader": "^0.13.1",
     "webpack": "^1.13.2",
-    "webpack-dev-server": "^1.14.1",
-    "node-sass": "^3.8.0",
-    "sass-loader": "^4.0.0"
-    "style": "0.0.3",
+    "webpack-dev-server": "^1.14.1"
   },
   "devDependencies": {
     "babel-cli": "^6.11.4"
+  },
+  "metadata": {
+    "graphql": {
+      "schema": "./app_server/schemas/schema.json"
+    }
   }
 }

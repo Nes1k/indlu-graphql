@@ -2,7 +2,7 @@ import mongoose, { Schema } from 'mongoose';
 const { ObjectId } = Schema.Types;
 
 const roomSchema = new Schema({
-  property: { type: ObjectId, ref: 'Property' },
+  estate: { type: ObjectId, ref: 'estate' },
   roomsType: { type: Number, default: 0, min: 0, max: 5},
   name: { type: String, required: true },
   area: {type: Number, min: 0 },
@@ -11,7 +11,7 @@ const roomSchema = new Schema({
   images: [ String ]
 });
 
-const propertySchema = new Schema({
+const estateSchema = new Schema({
   user: { type: ObjectId, ref: 'User' },
   country: { type: String, required: true },
   street: { type: String, required: true },
@@ -31,6 +31,6 @@ const propertySchema = new Schema({
 });
 
 export default {
-  Property: mongoose.model('Property', propertySchema),
+  Estate: mongoose.model('Estate', estateSchema),
   Room: mongoose.model('Room', roomSchema)
 };

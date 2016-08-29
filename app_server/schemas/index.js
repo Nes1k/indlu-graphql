@@ -23,7 +23,7 @@ import { connectionFromMongooseQuery } from 'relay-mongodb-connection';
 
 import { geocode, createAddress } from '../utils';
 import * as types from '../models';
-const { User, Room, Property, Advertisement } = types;
+const { User, Room, Estate, Advertisement } = types;
 
 
 const { nodeInterface, nodeField } = nodeDefinitions(
@@ -37,8 +37,8 @@ const { nodeInterface, nodeField } = nodeDefinitions(
       return UserType;
     } else if (obj instanceof Room){
       return RoomType;
-    } else if (obj instanceof Property){
-      return PropertyType;
+    } else if (obj instanceof Estate){
+      return EstateType;
     } else if (obj instanceof Advertisement){
       return AdType;
     }
@@ -62,11 +62,11 @@ const UserType = new GraphQLObjectType({
       firstName: { type: GraphQLString },
       lastName: { type: GraphQLString },
       dataJoined: { type: GraphQLString },
-      properties: {
-        type: PropertyConnection,
+      estates: {
+        type: EstateConnection,
         args: connectionArgs,
         resolve: ({ _id }, args) => {
-          return connectionFromMongooseQuery(Property.find({ user: _id }), args);
+          return connectionFromMongooseQuery(Estate.find({ user: _id }), args);
         }
       },
       favourites: {
@@ -99,10 +99,10 @@ const RoomType = new GraphQLObjectType({
   fields(){
     return {
       id: globalIdField('Room', room => room._id),
-      property: {
-        type: PropertyType,
-        resolve: ({ property }) => {
-          return Property.findOne({ _id: property });
+      estate: {
+        type: EstateType,
+        resolve: ({ estate }) => {
+          return Estate.findOne({ _id: estate });
         }
       },
       roomsType: { type: GraphQLInt },
@@ -120,12 +120,12 @@ const { connectionType: RoomConnection, edgeType: RoomEdge } =
   connectionDefinitions({ name: 'Room', nodeType: RoomType });
 
 
-const PropertyType = new GraphQLObjectType({
-  name: 'Property',
-  description: 'Property',
+const EstateType = new GraphQLObjectType({
+  name: 'Estate',
+  description: 'Estate',
   fields(){
     return {
-      id: globalIdField('Property', property => property._id),
+      id: globalIdField('Estate', estate => estate._id),
       user: {
         type: UserType,
         resolve: ({ user }) => {
@@ -144,8 +144,8 @@ const PropertyType = new GraphQLObjectType({
       rooms: {
         type: RoomConnection,
         resolve: ({ _id, rooms }, args) => {
-          let roomsWithProperty = rooms.map(room => ({ property: _id, ...room}));
-          return connectionFromArray(roomsWithProperty, args);
+          let roomsWithEstate = rooms.map(room => ({ estate: _id, ...room}));
+          return connectionFromArray(roomsWithEstate, args);
         }
       },
       numberOfRooms: {
@@ -163,8 +163,8 @@ const PropertyType = new GraphQLObjectType({
   interfaces: [nodeInterface]
 });
 
-const { connectionType: PropertyConnection, edgeType: PropertyEdge } =
-  connectionDefinitions({ name: 'Property', nodeType: PropertyType });
+const { connectionType: EstateConnection, edgeType: EstateEdge } =
+  connectionDefinitions({ name: 'Estate', nodeType: EstateType });
 
 
 const AdType = new GraphQLObjectType({
@@ -173,10 +173,10 @@ const AdType = new GraphQLObjectType({
   fields(){
     return {
       id: globalIdField('Advertisement', ad => ad._id),
-      property: {
-        type: PropertyType,
-        resolve: ({ property }) => {
-          return Property.findOne({ _id: property });
+      estate: {
+        type: EstateType,
+        resolve: ({ estate }) => {
+          return Estate.findOne({ _id: estate });
         }
       },
       payment: { type: GraphQLInt },
@@ -201,13 +201,33 @@ const Query = new GraphQLObjectType({
         type: UserType,
         resolve: () => User.findOne()
       },
+      estate: {
+        type: EstateType,
+        args: {
+          id: {
+            type: GraphQLID
+          }
+        },
+        resolve: (_, { id }) => {
+          const localEstateId = fromGlobalId(id).id;
+          return Estate.findOne({_id: localEstateId})
+            .then(estate => {
+              console.log(estate);
+              if(!estate)
+                return {_id: null};
+
+              return estate;
+            });
+
+        }
+      },
       create: {
         type: GraphQLInt,
         resolve: () => {
-          Property.findOne().then(property => {
-            console.log(property);
+          Estate.findOne().then(estate => {
+            console.log(estate);
             new Advertisement({
-              property: property._id,
+              estate: estate._id,
               payment: 1,
               price: 700,
               freePlaces: 3,
@@ -235,69 +255,99 @@ const RoomInput = new GraphQLInputObjectType({
   }
 });
 
-// Properties Mutation
+// Estates Mutation
 
-const CreateProperty = mutationWithClientMutationId({
-  name: 'CreateProperty',
-  description: 'Inserting new property',
+const CreateEstate = mutationWithClientMutationId({
+  name: 'CreateEstate',
+  description: 'Inserting new Estate',
   inputFields: {
     country: { type: new GraphQLNonNull(GraphQLString) },
     street: { type: new GraphQLNonNull(GraphQLString) },
     postalCode: { type: new GraphQLNonNull(GraphQLString)},
     city: { type: new GraphQLNonNull(GraphQLString) },
     buildingType: { type: new GraphQLNonNull(GraphQLInt) },
-    name: { type: new GraphQLNonNull(GraphQLString) },
-    area: { type: new GraphQLNonNull(GraphQLFloat) },
-    totalPlaces: { type: new GraphQLNonNull(GraphQLInt) },
-    rooms: { type: new GraphQLList(RoomInput) }
+    name: { type: new GraphQLNonNull(GraphQLString) }
   },
   outputFields: {
-    property: {
-      type: PropertyType,
-      resolve: (product) => {
-        return product;
+    estate: {
+      type: EstateType,
+      resolve: (estate) => {
+        return estate;
       }
     }
   },
+  
   mutateAndGetPayload: (args) => {
     return User.findOne().then(user => {
       return geocode(createAddress(args)).then(coords => {
-        return new Property({
+        return new Estate({
           user: user._id,
           coords,
           ...args
-        }).save();
+        }).save().then(estate => estate);
       });
     });
   }
 });
 
-const RemoveProperty = mutationWithClientMutationId({
-  name: 'RemoveProperty',
+
+const EditEstate = mutationWithClientMutationId({
+  name: 'EditEstate',
+  description: 'Edit Estate',
+  inputFields: {
+    id: { type: new GraphQLNonNull(GraphQLID) },
+    country: { type: new GraphQLNonNull(GraphQLString) },
+    street: { type: new GraphQLNonNull(GraphQLString) },
+    postalCode: { type: new GraphQLNonNull(GraphQLString)},
+    city: { type: new GraphQLNonNull(GraphQLString) },
+    buildingType: { type: new GraphQLNonNull(GraphQLInt) },
+    name: { type: new GraphQLNonNull(GraphQLString) }
+  },
+  outputFields: {
+    estate: {
+      type: EstateType,
+      resolve: (estate) => {
+        return estate;
+      }
+    }
+  },
+  mutateAndGetPayload: ({ id, ...args }) => {
+      return geocode(createAddress(args)).then(coords => {
+        return Estate.findOneAndUpdate(
+          { _id: id },
+          { coords, ...args },
+          { new: true });
+      });
+  }
+});
+
+
+const RemoveEstate = mutationWithClientMutationId({
+  name: 'RemoveEstate',
   inputFields: {
     id: { type: new GraphQLNonNull(GraphQLID)}
   },
   outputFields: {
-    deletedPropertyId: {
+    deletedEstateId: {
       type: GraphQLID,
       resolve: ({ id }) => id
     }
   },
   mutateAndGetPayload: ({ id }) => {
-    const localPropertyId = fromGlobalId(id).id;
-    return Property.remove({ _id: localPropertyId })
-      .then(() => localPropertyId);
+    const localEstateId = fromGlobalId(id).id;
+    return Estate.remove({ _id: localEstateId })
+      .then(() => localEstateId);
   }
 });
 
-// TODO: EditProperty
+// TODO: EditEstate
 
 // Room mutation
 
 const CreateRoom = mutationWithClientMutationId({
   name: 'CreateRoom',
   inputFields: {
-      property: { type: new GraphQLNonNull(GraphQLString) },
+      estate: { type: new GraphQLNonNull(GraphQLString) },
       roomsType: { type: new GraphQLNonNull(GraphQLInt) },
       name: { type: new GraphQLNonNull(GraphQLString) },
       area: { type: new GraphQLNonNull(GraphQLFloat) },
@@ -317,8 +367,8 @@ const CreateRoom = mutationWithClientMutationId({
     }
   },
   mutateAndGetPayload: (args) => {
-    return Property.findOneAndUpdate(
-      { _id: args.property },
+    return Estate.findOneAndUpdate(
+      { _id: args.estate },
       { $push: {"rooms": args }},
       { new: true }
     );
@@ -328,7 +378,7 @@ const CreateRoom = mutationWithClientMutationId({
 const EditRoom = mutationWithClientMutationId({
   name: 'EditRoom',
   inputFields: {
-      property: { type: new GraphQLNonNull(GraphQLString) },
+      estate: { type: new GraphQLNonNull(GraphQLString) },
       roomsType: { type: new GraphQLNonNull(GraphQLInt) },
       name: { type: new GraphQLNonNull(GraphQLString) },
       area: { type: new GraphQLNonNull(GraphQLFloat) },
@@ -348,8 +398,8 @@ const EditRoom = mutationWithClientMutationId({
     }
   },
   mutateAndGetPayload: (args) => {
-    Property.findOneAndUpdate(
-      { _id: args.property, 'rooms._id': args._id },
+    Estate.findOneAndUpdate(
+      { _id: args.estate, 'rooms._id': args._id },
       { $set: args },
       { new: true }
     );
@@ -360,23 +410,23 @@ const RemoveRoom = mutationWithClientMutationId({
   name: 'RemoveRoom',
   inputFields: {
     id: { type: new GraphQLNonNull(GraphQLID) },
-    property: { type: new GraphQLNonNull(GraphQLID) }
+    estate: { type: new GraphQLNonNull(GraphQLID) }
   },
   outputFields: {
     deletedRoomId: {
       type: GraphQLID,
       resolve: ({ id }) => id
     },
-    property: {
-      type: PropertyType,
-      resolve: (property) => property
+    estate: {
+      type: EstateType,
+      resolve: (estate) => estate
     }
   },
-  mutateAndGetPayload: ({ id, property }) => {
+  mutateAndGetPayload: ({ id, estate }) => {
     const localRoomId = fromGlobalId(id).id;
-    const localPropertyId = fromGlobalId(property).id;
+    const localEstateId = fromGlobalId(estate).id;
 
-    return Property.update( { _id: property}, { $pull: { rooms: id }});
+    return Estate.update( { _id: estate}, { $pull: { rooms: id }});
   }
 });
 
@@ -384,7 +434,7 @@ const RemoveRoom = mutationWithClientMutationId({
 const CreateAdvertisement = mutationWithClientMutationId({
   name: 'CreateAdvertisement',
   inputFields: {
-    property: { type: new GraphQLNonNull(GraphQLID) },
+    estate: { type: new GraphQLNonNull(GraphQLID) },
     payment: { type: new GraphQLNonNull(GraphQLInt) },
     price: { type: new GraphQLNonNull(GraphQLInt) },
     freePlaces: { type: GraphQLInt }
@@ -395,8 +445,8 @@ const CreateAdvertisement = mutationWithClientMutationId({
       resolve: (ad) => ad
     }
   },
-  mutateAndGetPayload: ({ property, payment, price, freePlaces }) => {
-    return new Advertisement({ property, payment, price, freePlaces }).save();
+  mutateAndGetPayload: ({ estate, payment, price, freePlaces }) => {
+    return new Advertisement({ estate, payment, price, freePlaces }).save();
   }
 });
 
@@ -435,7 +485,7 @@ const RemoveAdvertisement = mutationWithClientMutationId({
   },
   mutateAndGetPayload: ({ id }) => {
     const localAdId = fromGlobalId(id).id;
-    return Property.remove({ _id: localAdId })
+    return Estate.remove({ _id: localAdId })
       .then(() => localAdId);
   }
 });
@@ -464,21 +514,21 @@ const Mutation = new GraphQLObjectType({
   name: 'GraphQLMutation',
   fields(){
     return {
-      createProperty: CreateProperty,
-      // editProperty: EditProperty,
-      removeProperty: RemoveProperty,
-      // Room mutation
-      createRoom: CreateRoom,
-      editRoom: EditRoom,
-      removeRoom: RemoveRoom,
-      createAdvertisement: CreateAdvertisement,
-      editAdvertisement: EditAdvertisement,
-      removeAdvertisement: RemoveAdvertisement,
-      addToFavourites: AddToFavourites,
-      removeFromFavourites: RemoveFromFavourites
+      createEstate: CreateEstate,
+      editEstate: EditEstate
+      /* removeEstate: RemoveEstate,
+       * // Room mutation
+       * createRoom: CreateRoom,
+       * editRoom: EditRoom,
+       * removeRoom: RemoveRoom,
+       * createAdvertisement: CreateAdvertisement,
+       * editAdvertisement: EditAdvertisement,
+       * removeAdvertisement: RemoveAdvertisement,
+       * addToFavourites: AddToFavourites,
+       * removeFromFavourites: RemoveFromFavourites*/
       
     };
   }
 });
 
-export default new GraphQLSchema({query: Query});
+export default new GraphQLSchema({query: Query, mutation: Mutation});

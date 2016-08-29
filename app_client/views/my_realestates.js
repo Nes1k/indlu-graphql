@@ -15,16 +15,15 @@ export class MyRealestates extends Component {
   }
 
   renderEstates(){
-    const { edges } = this.props.user.properties;
+    const { edges } = this.props.user.estates;
     return edges.map(edge => <TilesEstate key={edge.node.id} estate={edge.node} />);
   }
 
   render(){
-      console.log(this.props);
     return (
-        <div className="row">
-          {this.renderEstates()}
-        </div>
+      <div className="row">
+        {this.renderEstates()}
+      </div>
     );
   }
 }
@@ -37,7 +36,7 @@ MyRealestates = Relay.createContainer(MyRealestates, {
     user: () => Relay.QL`
       fragment on User {
         id
-        properties(first: $first) {
+        estates(first: $first) {
           edges {
             node {
               id

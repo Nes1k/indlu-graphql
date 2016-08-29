@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import { GoogleMapLoader, GoogleMap, Marker } from 'react-google-maps';
 
 
-const Map = (props) => {
+const GMap = (props) => {
   const coords = { lat: props.coords[0], lng: props.coords[1]};
   return (
     <GoogleMapLoader
@@ -21,9 +21,9 @@ const Map = (props) => {
   );
 };
 
-Map.propTypes = {
+GMap.propTypes = {
   coords: PropTypes.array.isRequired
 };
 
-export default Map;
+export default GMap;
 
