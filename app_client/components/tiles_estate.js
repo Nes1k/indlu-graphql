@@ -3,7 +3,6 @@ import Relay from 'react-relay';
 import { Link } from 'react-router';
 
 export let TilesEstate = ({ estate }) => {
-  console.log(estate);
   // TOOO: PHOTO
   return (
     <div className="col-md-6 tiles-estate">

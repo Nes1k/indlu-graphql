@@ -5,16 +5,14 @@ import { reduxForm, Field } from 'redux-form';
 
 import { InputField, SelectField }  from '../components/input_field';
 import { CreateEstateMutation, EditEstateMutation } from '../../mutation';
+import { loadToForm  } from '../helpers';
 
-const loadToForm = (Component, propName) => {
-  return (props) => (<Component {...props} initialValues={props[propName]}/>);
-};
 
 export class ManageEstate extends Component {
 
   static contextTypes = {
     router: PropTypes.object.isRequired
-  }
+  };
 
   constructor(props){
     super(props);
@@ -23,7 +21,6 @@ export class ManageEstate extends Component {
   }
 
   _onSuccess({ createEstate: { estate }}){
-    console.log(estate);
     this.context.router.push(`/estates/edit/${estate.id}`);
   }
 

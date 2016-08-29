@@ -9,7 +9,6 @@ class AdDetail extends Component {
 
   render(){
     const { ad } = this.props;
-    console.log(ad);
     const { coords } = ad.estate;
     return (
       <div className="row adBody">

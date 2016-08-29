@@ -212,7 +212,6 @@ const Query = new GraphQLObjectType({
           const localEstateId = fromGlobalId(id).id;
           return Estate.findOne({_id: localEstateId})
             .then(estate => {
-              console.log(estate);
               if(!estate)
                 return {_id: null};
 
@@ -225,7 +224,6 @@ const Query = new GraphQLObjectType({
         type: GraphQLInt,
         resolve: () => {
           Estate.findOne().then(estate => {
-            console.log(estate);
             new Advertisement({
               estate: estate._id,
               payment: 1,

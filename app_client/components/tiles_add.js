@@ -5,7 +5,6 @@ import { Link } from 'react-router';
 
 let TilesAdd = (props) => {
   const { ad } = props;
-  console.log(ad);
   return (
     <div key={ad.id} className="col-sm-12 col-md-6 col-lg-5">
       <div className="thumbnail">
